@@ -1,0 +1,113 @@
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/jquery"></script>
+
+<script>
+	var socket = io.connect('ws://mysocket.so:8000');
+
+	// on connection to server, ask for user's name with an anonymous callback
+
+
+	// listener, whenever the server emits 'updatechat', this updates the chat body
+	socket.on('updatechat', function (username, data) {
+		console.log('')
+		$('#conversation').append('<b>'+username + ':</b> ' + data + '<br>');
+	});
+
+	socket.on('getsavedchat', function (username, data) {		
+		var conv = $('#conversation');
+		conv.empty();
+
+		for(d in data){
+			conv.append('<b>'+data[d].name + ':</b> ' + data[d].chat + '<br>');
+		}
+		//$('#conversation').append('<b>'+username + ':</b> ' + data + '<br>');
+	});
+
+	/*
+	$.ajax({
+		url: "/test_data",
+		beforeSend: function( xhr ) {
+			//xhr.overrideMimeType( "text/plain; charset=x-user-defined" );
+		}
+	}).done(function( data ) {
+		
+		console.log(data);
+
+	});
+	*/
+
+	// listener, whenever the server emits 'updaterooms', this updates the room the client is in
+	socket.on('updaterooms', function(rooms, current_room) {
+		$('#rooms').empty();
+		$.each(rooms, function(key, value) {
+			if(value == current_room){
+				$('#rooms').append('<div>' + value + '</div>');
+			}
+			else {
+				$('#rooms').append('<div><a href="#" onclick="switchRoom(\''+value+'\')">' + value + '</a></div>');
+			}
+		});
+	});
+
+
+	function switchRoom(room){
+		socket.emit('switchRoom', room);
+	}
+
+	// on load of page
+	$(function(){
+		// when the client clicks SEND
+		$('#datasend').click( function() {
+			var message = $('#data').val();
+			$('#data').val('');
+			// tell server to execute 'sendchat' and send along one parameter
+			socket.emit('sendchat', message);
+		});
+
+		// when the client hits ENTER on their keyboard
+		$('#data').keypress(function(e) {
+			if(e.which == 13) {
+				$(this).blur();
+				$('#datasend').focus().click();
+			}
+		});
+
+		$('#startchat').click( function() {
+			var username = $('#username').val();
+			socket.emit('adduser', username);
+
+			$('.chatstart').remove();
+			$('.chatarea').show();
+		});
+	});
+
+</script>
+
+
+<div class="chatstart">
+	<p>Enter Name</p>
+	<input id="username" type="text" style="width:200px;" />
+	<input type="button" id="startchat" value="Start Chat" />
+</div>
+
+<span class="chatarea" style="display:none">
+
+	<div style="float:left;width:100px;border-right:1px solid black;height:300px;padding:10px;overflow:scroll-y;">
+		<b>ROOMS</b>
+		<div id="rooms"></div>
+	</div>
+
+	<div style="float:left;width:300px;height:250px;overflow:scroll-y;padding:10px;">
+		<div id="conversation"></div>
+		<input id="data" style="width:200px;" />
+		<input type="button" id="datasend" value="send" />
+	</div>
+
+</span>
+
+
+
+
+
+
