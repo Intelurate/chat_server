@@ -44,7 +44,7 @@ db.open(function(err, db) {
     }
 });
 
-cx.listen(8000);
+server.listen(8000);
 
 var controllers = require('./controllers');
 	controllers.set(app, fs, oppressor);
