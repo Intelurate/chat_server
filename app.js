@@ -15,15 +15,16 @@ var Server = mongo.Server,
     BSON = mongo.BSONPure;
 
 
-/*
-var mysql      = require('mysql');
+
+var mysql = require('mysql');
 var connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
-  password : 'pass123',
-  port     : '3307',
-  database : 'nodejs'
+  password : 'Plumbed191!!',
+  port     : '3306',
+  database : 'chat_app_analytics'
 });
+
 connection.connect(function(err) {
   if (err) {
     console.error('error connecting: ' + err.stack);
@@ -32,17 +33,7 @@ connection.connect(function(err) {
   console.log('connected as id ' + connection.threadId);
 });
 
-//connection.query('INSERT into nodejs.test (name, title) values("bryan", "web developer")', function(err, rows) {
-//		console.log(rows);
-//});
-
-connection.query('Select * From test JOIN test2 ON test2.test_id = test.test_id Where test.test_id = 1', function(err, rows) {
-		console.log(rows);
-});
-*/
-
-
-var dbServerConnection = new Server('localhost', 27017, {auto_reconnect: true});
+var dbServerConnection = new Server('54.86.153.19', 27017, {auto_reconnect: true});
 var db = new Db('chatapp', dbServerConnection, {safe:false});
 
 db.open(function(err, db) {
@@ -53,11 +44,11 @@ db.open(function(err, db) {
     }
 });
 
-server.listen(8000);
+cx.listen(8000);
 
 var controllers = require('./controllers');
 	controllers.set(app, fs, oppressor);
 
 var sockets = require('./sockets');
-	sockets.set(io, db, sanitizer);
+	sockets.set(io, db, connection, sanitizer);
 

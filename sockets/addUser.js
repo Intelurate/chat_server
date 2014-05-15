@@ -1,4 +1,6 @@
-module.exports.set = function(socket, io, db, rooms, sanitizer) {
+
+
+module.exports.set = function(socket, io, db, rooms, sanitizer, connection) {
 
 	// when the client emits 'adduser', this listens and executes
 	socket.on('adduser', function(data) {
@@ -11,13 +13,20 @@ module.exports.set = function(socket, io, db, rooms, sanitizer) {
 		}
 
 		//testing username
-		if(rooms[socket.room][sanitizer.escape(data.username)]) {
+		if(rooms[socket.room]['users'][sanitizer.escape(data.username)]) {
 			socket.emit('usernameliveexist', true);
-		}else{
-			
+		} else {
+
+			var md5 = require('md5');
+			var d = new Date();
+			var currMills = d.getTime();
+
+			var user_id = md5.encode(currMills+data.username+socket.room);
+
 			socket.username = sanitizer.escape(data.username);
-			rooms[socket.room]['users'][socket.username] = {}; //sanitizer.escape(data.username);
-			
+			rooms[socket.room]['users'][socket.username] = {};
+			socket.user_id = user_id;
+
 			rooms[socket.room]['count'] = (rooms[socket.room]['count']+1);
 
 			socket.emit('showyourconnected', socket.username, rooms[socket.room]);
@@ -31,6 +40,11 @@ module.exports.set = function(socket, io, db, rooms, sanitizer) {
 		            socket.emit('getsavedchat', socket.username, items, rooms[socket.room]);
 		        });
 		    });
+
+			connection.query('INSERT into guests (guest_name, page_enter_time, guest_socket_id) values("'+socket.username+'", "'+currMills+'", "'+socket.user_id+'")', function(err, rows) {
+				console.log(rows);
+			});
+		
 		}
 	});
 }

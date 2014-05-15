@@ -1,7 +1,7 @@
-module.exports.set = function(socket, io, db, sanitizer) {
+module.exports.set = function(socket, io, db, sanitizer, connection) {
 	// when the client emits 'sendchat', this listens and executes
 	socket.on('sendchat', function (data) {	
-		
+			
 		db.collection(socket.room, function(err, collection) {
 	        db.collection(socket.room, function(err, collection) {	 
 	        	var d = new Date();
@@ -15,5 +15,6 @@ module.exports.set = function(socket, io, db, sanitizer) {
 
 	        });
 	    });
+
 	});
 }
