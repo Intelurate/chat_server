@@ -1,7 +1,24 @@
 
-module.exports.set = function(socket, io, rooms, connection) {	
+var Worker = require('webworker-threads').Worker;
+
+module.exports.set = function(socket, io, rooms) {	
 	// when the user disconnects.. perform this
-	socket.on('disconnect', function() {		
+	socket.on('disconnect', function() {	
+	
+
+
+		var worker = new Worker(function() {
+			var now = new Date().getTime();
+			while(new Date().getTime() < now + 10000) {}				
+			this.postMessage('I am done processing now');
+			console.log("while done");
+		});
+
+		worker.onmessage = function(event) {
+			console.log(event.data);
+		};
+
+
 
 		if(rooms) {
 			if(rooms[socket.room]) {
@@ -19,7 +36,7 @@ module.exports.set = function(socket, io, rooms, connection) {
 						var d = new Date();
 						var currMills = d.getTime();
 						//sets the 
-						connection.query('UPDATE guests set page_leave_time="'+currMills+'" where guest_socket_id="'+socket.user_id+'"');
+						//connection.query('UPDATE guests set page_leave_time="'+currMills+'" where guest_socket_id="'+socket.user_id+'"');
 
 						// echo globally that this client has left				
 						socket.broadcast.to(socket.room).emit('userdisconnected', socket.username, rooms[socket.room] );

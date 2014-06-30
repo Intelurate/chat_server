@@ -1,4 +1,5 @@
-module.exports.set = function(socket, io, db, sanitizer, connection) {
+
+module.exports.set = function(socket, io, db, sanitizer) {
 	// when the client emits 'sendchat', this listens and executes
 	socket.on('sendchat', function (data) {	
 			

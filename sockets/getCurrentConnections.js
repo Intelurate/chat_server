@@ -1,3 +1,4 @@
+
 module.exports.set = function(socket, io, rooms) {
 
 	socket.on('getcurrentconnections', function(data) {
@@ -6,7 +7,7 @@ module.exports.set = function(socket, io, rooms) {
 		socket.join(socket.room);
 
 		if(rooms[data.room]) {
-			socket.emit('showcurrentconnections', rooms[data.room].count);
+			socket.emit('showcurrentconnections', rooms[data.room]);
 		}else{
 			socket.emit('showcurrentconnections', 0);
 		}

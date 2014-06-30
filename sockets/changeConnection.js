@@ -1,5 +1,5 @@
 
-module.exports.set = function(socket, io, rooms, connection) {	
+module.exports.set = function(socket, io, rooms) {	
 	// when the user disconnects.. perform this
 	socket.on('changeconnection', function(data) {
 
