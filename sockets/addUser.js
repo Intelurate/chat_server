@@ -21,8 +21,9 @@ module.exports.set = function(socket, io, db, rooms, sanitizer) {
 			var d = new Date();
 			var currMills = d.getTime();
 			var user_id = md5.encode(currMills+data.username+socket.room);
-
-			socket.username = sanitizer.escape(data.username);
+			
+			socket.username = sanitizer.escape(data.username);		
+			
 			rooms[socket.room]['users'][socket.username] = {};
 			socket.user_id = user_id;
 

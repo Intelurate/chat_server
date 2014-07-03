@@ -6,17 +6,20 @@ module.exports.set = function(socket, io, rooms) {
 	socket.on('disconnect', function() {	
 	
 
-
+		/*
 		var worker = new Worker(function() {
+
 			var now = new Date().getTime();
 			while(new Date().getTime() < now + 10000) {}				
 			this.postMessage('I am done processing now');
 			console.log("while done");
+
 		});
 
 		worker.onmessage = function(event) {
 			console.log(event.data);
 		};
+		*/
 
 
 
@@ -31,7 +34,6 @@ module.exports.set = function(socket, io, rooms) {
 						
 						// update list of users in chat, client-side
 						//io.sockets.emit('updateusers', rooms);
-
 
 						var d = new Date();
 						var currMills = d.getTime();
