@@ -37,6 +37,9 @@ module.exports.set = function(socket, io, db, rooms, sanitizer) {
 		    db.collection(socket.room, function(err, collection) {
 		        collection.find().sort( { "created" : -1 } ).toArray(function(err, items) {
 		            socket.emit('getsavedchat', socket.username, items, rooms[socket.room]);
+					
+					io.sockets.in(socket.room).emit('showuserlist', rooms[socket.room].users );
+
 		        });
 		    });
 			

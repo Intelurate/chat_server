@@ -41,8 +41,10 @@ module.exports.set = function(socket, io, rooms) {
 						//connection.query('UPDATE guests set page_leave_time="'+currMills+'" where guest_socket_id="'+socket.user_id+'"');
 
 						// echo globally that this client has left				
-						socket.broadcast.to(socket.room).emit('userdisconnected', socket.username, rooms[socket.room] );
+						socket.broadcast.to(socket.room).emit('userdisconnected', socket.username, rooms[socket.room] );						
+						socket.broadcast.to(socket.room).emit('showuserlist', rooms[socket.room].users  );
 						socket.leave(socket.room);
+
 
 					}
 				}
