@@ -3,6 +3,7 @@ var getUserList = require('./getUserList');
 var getUrlConnections = require('./getUrlConnections');
 var addUser = require('./addUser');
 var sendChat = require('./sendChat');
+var getPage = require('./getPage');
 var disconnect = require('./disconnect');
 var changeConnection = require('./changeConnection');
 
@@ -12,19 +13,13 @@ module.exports.set = function(io, db, sanitizer) {
 
 	io.sockets.on('connection', function (socket) {
 
-
 		getCurrentConnections.set(socket, io, rooms);
-
 		getUserList.set(socket, io, rooms);
-
 		addUser.set(socket, io, db, rooms, sanitizer);
-		
 		sendChat.set(socket, io, db, sanitizer);
-		
 		getUrlConnections.set(socket, rooms);
-		
-		disconnect.set(socket, io, rooms);
-		
+		getPage.set(socket, db, rooms);
+		disconnect.set(socket, io, rooms);		
 		changeConnection.set(socket, io, rooms);
 
 		//db.collection('room1', function(err, collection) {
