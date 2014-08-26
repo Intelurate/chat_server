@@ -3,7 +3,6 @@ module.exports.set = function(socket, data, client_redis, callback) {
 
 		var roomKey = data.room;
 
-		console.log(data);
 		
 		/*
 		{ room: '2429dec0da16e05381d939035ea6cf86',
@@ -21,18 +20,18 @@ module.exports.set = function(socket, data, client_redis, callback) {
 				client_redis.hmset(roomKey+":users:"+data.user.token, data.user);
 				client_redis.incr(roomKey+":users:count");
 				client_redis.get(roomKey+":users:count", function(err, user_count) {
-
 					data.count = user_count;
 					socket.join(roomKey);
 					socket.broadcast.to(roomKey).emit('userentersroom', data );	
 					callback(roomKey, data);				
-
 				});
 			}else{
 
 			}
 
 		});
+
+		
 
 /*
 
