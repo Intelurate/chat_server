@@ -1,9 +1,23 @@
 var express = require('express');
 var app = express();
+var fs = require('fs');
+
+
+/*
+var options = {
+  key: fs.readFileSync('./keys/server.key'),
+  cert: fs.readFileSync('./keys/server.crt'),
+  ca: fs.readFileSync('./keys/ca.crt'),
+  requestCert: true
+};
+*/
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
+
+//var serverSSL = require('https').createServer(options, app);
+//var io = require('socket.io').listen(serverSSL);
+
 var sanitizer = require('sanitizer');
-var fs = require('fs');
 var oppressor = require('oppressor');
 var mongo = require('mongodb');
 var Server = mongo.Server,
@@ -30,7 +44,11 @@ connection.connect(function(err) {
 });
 */
 
+
+//var dbServerConnection = new Server('54.88.169.55', 27017, {auto_reconnect: true});
+
 var dbServerConnection = new Server('localhost', 27017, {auto_reconnect: true});
+
 var db = new Db('chatapp', dbServerConnection, {safe:false});
 
 db.open(function(err, db) {
@@ -43,13 +61,13 @@ db.open(function(err, db) {
 
 server.listen(8888);
 
+//server.listen(80);
+//serverSSL.listen(443);
+
 var controllers = require('./controllers');
 	controllers.set(app, fs, oppressor);
 
 
 var sockets = require('./sockets');
-sockets.set(io, db, sanitizer);
-
-
-
+    sockets.set(io, db, sanitizer);
 

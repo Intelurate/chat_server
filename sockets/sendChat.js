@@ -1,20 +1,33 @@
 
-module.exports.set = function(socket, io, db, sanitizer) {
+var checkConnection = require('./checkConnection');
+
+module.exports.set = function(socket, io, db, sanitizer, client_redis) {
 	// when the client emits 'sendchat', this listens and executes
-	socket.on('sendchat', function (data) {	
-		db.collection(socket.room, function(err, collection) {
-	        db.collection(socket.room, function(err, collection) {	 
-	        	var d = new Date();
-	        	var created = d.getTime();	    
-	       			data = sanitizer.escape(data);	       	
+	socket.on('sendchat', function (data) {
 
-	            collection.insert({ "token" : socket.user.token, "username" : socket.user.username, "chat" : data, "created" : created }, 
-	            	{safe:true}, function(err, result) {
+		//checkConnection.set(socket, data, client_redis, function(roomKey, data) {
 
-	            	io.sockets.in(socket.room).emit('updatechat', socket.user, result[0]);
-	            });
+		var roomKey = data.room;
+		
+		//check socket connection				
+		if(!io.sockets.manager.rooms['/'+roomKey]) {
+			console.log('reconnect to socket')
+			socket.join(roomKey);								
+		}
 
-	        });
-	    });
+        db.collection(roomKey, function(err, collection) {	 
+        	
+        	var d = new Date();
+        	var created = d.getTime();	    
+       			data.message = sanitizer.escape(data.message);
+
+            collection.insert({ "token" : data.user.token, "username" : data.user.username, "chat" : data.message, "created" : created }, 
+            	{safe:true}, function(err, result) {
+            	data.result = result[0];
+            	io.sockets.in(roomKey).emit('updatechat', { data : data });
+            });
+
+        });
+
 	});
 }

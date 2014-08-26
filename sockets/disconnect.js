@@ -22,7 +22,7 @@ module.exports.set = function(socket, io, rooms) {
 		*/
 
 
-
+		/*
 		if(rooms) {
 			if(rooms[socket.room]) {
 				if(rooms[socket.room]['users']) {
@@ -50,5 +50,8 @@ module.exports.set = function(socket, io, rooms) {
 				}
 			}
 		}
+		*/
+
+		
 	});
 }

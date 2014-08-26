@@ -1,10 +1,12 @@
 
-module.exports.set = function(socket, io, rooms) {
+
+module.exports.set = function(socket, io, client_redis) {
 
 	socket.on('getuserlist', function(data) {
-		if(rooms[data.room]) {
-			socket.emit('showuserlist', rooms[data.room].users);			
-		}
+		var roomKey = data.room;
+		client_redis.hgetall(roomKey+":users", function(err, users) {
+			data.users = users;
+			socket.emit('showuserlist', data);		
+	    });	
 	});
-	
 }

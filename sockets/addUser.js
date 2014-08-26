@@ -19,8 +19,11 @@ module.exports.set = function(socket, io, db, rooms, sanitizer) {
 		} else {
 		
 			socket.user = { username : sanitizer.escape(data.user.username), token : token };
+			
 			rooms[socket.room]['users'][socket.user.token] = socket.user;
+
 			rooms[socket.room]['count'] = (rooms[socket.room]['count']+1);
+			
 			socket.emit('showyourconnected', socket.user, rooms[socket.room]);
 
 			// echo to room that a person has connected to their room
