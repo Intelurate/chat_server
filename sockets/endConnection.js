@@ -12,14 +12,11 @@ module.exports.set = function(socket, io, db, client_redis) {
 						client_redis.decr(roomKey+":users:count");
 						socket.broadcast.to(roomKey).emit('userdisconnected', { data : data } );	
 						socket.leave(roomKey);
-
 						//socket.broadcast.to(rooms[data.rooms[room]]).emit('userdisconnected', { data : data } );							
 					}
 				});
 			}
 			socket.emit('selfdisconnected', { data : data } );			
 		}
-
 	});
-
 }

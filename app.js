@@ -11,11 +11,18 @@ var options = {
   requestCert: true
 };
 */
+
+
 var server = require('http').createServer(app);
-var io = require('socket.io').listen(server);
+var io = require('socket.io')(server);
+var redis_io = require('socket.io-redis');
+    io.adapter(redis_io({ host: '127.0.0.1', port: 6379 }));
+
+
 
 //var serverSSL = require('https').createServer(options, app);
 //var io = require('socket.io').listen(serverSSL);
+
 
 var sanitizer = require('sanitizer');
 var oppressor = require('oppressor');
@@ -59,7 +66,7 @@ db.open(function(err, db) {
     }
 });
 
-server.listen(8888);
+server.listen(8889);
 
 //server.listen(80);
 //serverSSL.listen(443);

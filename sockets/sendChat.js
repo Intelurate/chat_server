@@ -1,19 +1,19 @@
 
 var checkConnection = require('./checkConnection');
 
-module.exports.set = function(socket, io, db, sanitizer, client_redis) {
+module.exports.set = function(socket, io, db, sanitizer) {
 	// when the client emits 'sendchat', this listens and executes
 	socket.on('sendchat', function (data) {
 
-		//checkConnection.set(socket, data, client_redis, function(roomKey, data) {
-
 		var roomKey = data.room;
 		
-		//check socket connection				
-		if(!io.sockets.manager.rooms['/'+roomKey]) {
-			console.log('reconnect to socket')
+		if(!io.sockets.adapter.rooms[roomKey]) {
 			socket.join(roomKey);								
+			console.log('joins room!!!');
+		}else{
+			console.log('already in room!!!');
 		}
+
 
         db.collection(roomKey, function(err, collection) {	 
         	
@@ -24,7 +24,11 @@ module.exports.set = function(socket, io, db, sanitizer, client_redis) {
             collection.insert({ "token" : data.user.token, "username" : data.user.username, "chat" : data.message, "created" : created }, 
             	{safe:true}, function(err, result) {
             	data.result = result[0];
-            	io.sockets.in(roomKey).emit('updatechat', { data : data });
+            	
+            	console.log('chat sent');
+
+            	io.in(roomKey).emit('updatechat', { data : data });
+
             });
 
         });

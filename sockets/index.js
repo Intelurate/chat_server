@@ -1,15 +1,10 @@
-var redis = require("redis"),
-    client_redis = redis.createClient(6379, '127.0.0.1', {});
-
+var redis = require("redis");
+var redis_client = redis.createClient(6379, '127.0.0.1', {});
 var startConnection = require('./startConnection');
 var endConnection = require('./endConnection');
-
 var getCurrentConnections = require('./getCurrentConnections');
 var getUserList = require('./getUserList');
-
 var leaveRoom = require('./leaveRoom');
-
-
 var getUrlConnections = require('./getUrlConnections');
 var addUser = require('./addUser');
 var sendChat = require('./sendChat');
@@ -17,31 +12,23 @@ var getPage = require('./getPage');
 var disconnect = require('./disconnect');
 var changeConnection = require('./changeConnection');
 
+
 module.exports.set = function(io, db, sanitizer) {
 
+	io.on('connection', function (socket) {
 
-	io.sockets.on('connection', function (socket) {
+		startConnection.set(socket, io, db, redis_client);
+		sendChat.set(socket, io, db, sanitizer);	
+		leaveRoom.set(socket, io, redis_client);		
+		getPage.set(socket, io, db, redis_client);
+		getUserList.set(socket, io, redis_client);
+		endConnection.set(socket, io, db, redis_client);
 
-		startConnection.set(socket, io, db, client_redis);
 
-		sendChat.set(socket, io, db, sanitizer, client_redis);	
 
-		leaveRoom.set(socket, io, client_redis);
-		
-		getPage.set(socket, io, db, client_redis);
-
-		getUserList.set(socket, io, client_redis);
 	
-		endConnection.set(socket, io, db, client_redis);
-
-
-		/*
-		
+		/*		
 		getUserList.set(socket, io, rooms);
-
-		*/
-
-		/*
 		getCurrentConnections.set(socket, io, rooms);
 		getUserList.set(socket, io, rooms);
 		addUser.set(socket, io, db, rooms, sanitizer);
@@ -67,8 +54,6 @@ module.exports.set = function(io, db, sanitizer) {
 
 		});
 		*/
-
-
 	});
-
 }
+

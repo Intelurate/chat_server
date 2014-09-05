@@ -1,6 +1,6 @@
 
 
-module.exports.set = function(socket, io, client_redis) {
+module.exports.set = function(socket, io, redis_client) {
 
 	socket.on('leaveroom', function(data) {
 
@@ -12,11 +12,11 @@ module.exports.set = function(socket, io, client_redis) {
 
 			if(data.user.token) {
 
-				client_redis.hdel(roomKey+":users", data.user.token);				
-				client_redis.decr(roomKey+":users:count");
+				redis_client.hdel(roomKey+":users", data.user.token);				
+				redis_client.decr(roomKey+":users:count");
 				socket.leave(roomKey);
-				client_redis.get(roomKey+":users:count", function(err, room_count) {
-					data.count = room_count;
+				redis_client.get(roomKey+":users:count", function(err, room_count) {
+					data.count = room_count;					
 					socket.broadcast.to(data.room).emit('userleftroom', data );
 			    });	
 			}else{

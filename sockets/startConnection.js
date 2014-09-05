@@ -1,16 +1,14 @@
 
 var checkConnection = require('./checkConnection');
 
-module.exports.set = function(socket, io, db, client_redis) {	
+module.exports.set = function(socket, io, db, redis_client) {	
 	// when the user disconnects.. perform this
 
 	socket.on('startconnection', function(data) {
 
 		var roomKey = data.room;
 
-//		client_redis.hgetall(roomKey+":users:"+data.user.token, function(err, user) {
-
-		client_redis.hgetall(roomKey+":users", function(err, users) {
+		redis_client.hgetall(roomKey+":users", function(err, users) {
 
 			//sets the users room token
 			if(!users || !users[data.user.token]) {
@@ -18,69 +16,71 @@ module.exports.set = function(socket, io, db, client_redis) {
 				var userSet = {};
 
 				userSet[data.user.token] = data.user.username;
+				redis_client.hmset(roomKey+":users", userSet);
+				redis_client.incr(roomKey+":users:count");
 
-				client_redis.hmset(roomKey+":users", userSet );
 
-				client_redis.incr(roomKey+":users:count");
+				redis_client.get(roomKey+":users:count", function(err, user_count) {
 
-				client_redis.get(roomKey+":users:count", function(err, user_count) {
 					data.count = user_count;
 					socket.join(roomKey);
-					socket.broadcast.to(roomKey).emit('userentersroom', data);	
 
+					socket.broadcast.to(roomKey).emit('userentersroom', data);
 
-
-					client_redis.hgetall(roomKey+":users", function(err, users) {
-						data.users = users;
+					redis_client.hgetall(roomKey+":users", function(err, users) {
+						data.users = users;						
     					io.sockets.in(roomKey).emit('showuserlist', data);
            			});
 
-
-
 				    db.collection(roomKey, function(err, collection) {
 				        collection.find().sort( { "created" : -1 } ).limit(20).toArray(function(err, items) {
-				        	data.items = items;	 
-				           	socket.to(data.room).emit('verifyconnection', { data : data } );
+				        	data.items = items;
+				           	io.to(data.room).emit('verifyconnection', { data : data } );
 				        })
 				    });	
 				});
 			
 			}else{
 
-				client_redis.get(roomKey+":users:count", function(err, user_count) {
+				redis_client.get(roomKey+":users:count", function(err, user_count) {
 					
 					if(!user_count){
-						client_redis.incr(roomKey+":users:count");
+						redis_client.incr(roomKey+":users:count");
 						data.count = 1;
 					}else{
 						data.count = user_count;
 					}
 					
-					if(!io.sockets.manager.rooms['/'+roomKey]) {
+					
+					if(!io.sockets.adapter.rooms[roomKey]) {
 						socket.join(roomKey);								
+						console.log('joins room!!!');
+					}else{
+						console.log('already in room!!!');
 					}
 
+
 				    db.collection(roomKey, function(err, collection) {
+				    	
 				        collection.find().sort( { "created" : -1 } ).limit(20).toArray(function(err, items) {
 				        	
-				        	data.items = items;	 				           	
-				           	socket.to(data.room).emit('verifyconnection', { data : data } );
+				        	data.items = items;	
 
-							client_redis.hgetall(roomKey+":users", function(err, users) {
+		           			io.to(roomKey).emit('verifyconnection', { data : data } );		           			
+		           	
+		           			//socket.broadcast.to(roomKey).emit('verifyconnection', { data : data } );
 
+							redis_client.hgetall(roomKey+":users", function(err, users) {
 								data.users = users;
-								socket.to(data.room).emit('showuserlist', data);
-								//io.sockets.in(roomKey).emit('showuserlist', { data : data.data });
-							});
-
-				           	
-
+							    io.to(data.room).emit('showuserlist', data);							 
+							});				     
 				        })
 				    });												
 				});
 			}
-
 		});
+
+
 
 
 
