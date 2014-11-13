@@ -3,14 +3,14 @@ module.exports.set = function(socket, io, db, publisher) {
 
 	socket.on('getpaging', function(data) {
 		
+// { paging: { page: 2, skipped: 0 },
+//   room: '037acf77482d425aa93d0c77f0a89412',
+//   user: 
+//    { avatar: 'animals/dog_avatar_0638.jpg',
+//      token: 'c37cb6043429b68860f5bbdc4294ba62',
+//      username: 'dOggies' } }
+
 		var roomKey = data.room;
-		
-		if(!io.sockets.adapter.rooms[roomKey]) {
-			socket.join(roomKey);								
-			console.log('joins room!!!');
-		}else{
-			console.log('already in room!!!');
-		}
 
 		var page  = data.paging.page;
 		var skipping  = ((page-1)*20) + data.paging.skipped;

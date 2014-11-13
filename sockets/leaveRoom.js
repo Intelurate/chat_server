@@ -11,13 +11,18 @@ module.exports.set = function(socket, io, redis_client) {
 			console.log('leave room');
 
 			if(data.user.token) {
-
+				
 				redis_client.hdel(roomKey+":users", data.user.token);				
-				redis_client.decr(roomKey+":users:count");
+				//redis_client.decr(roomKey+":users:count");
+
 				socket.leave(roomKey);
-				redis_client.get(roomKey+":users:count", function(err, room_count) {
-					data.count = room_count;					
-					socket.broadcast.to(data.room).emit('userleftroom', data );
+
+				//redis_client.get(roomKey+":users:count", function(err, room_count) {
+				//data.count = room_count;					
+
+				redis_client.hgetall(roomKey+":users", function(err, users) {								
+					data.users = users;							    			
+					socket.broadcast.to(roomKey).emit('userleftroom', data );
 			    });	
 			}else{
 				console.log('user token not found');

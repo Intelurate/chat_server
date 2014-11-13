@@ -14,10 +14,12 @@ var options = {
 
 
 var server = require('http').createServer(app);
+
+//server.close();
+
 var io = require('socket.io')(server);
 var redis_io = require('socket.io-redis');
     io.adapter(redis_io({ host: '127.0.0.1', port: 6379 }));
-
 
 
 //var serverSSL = require('https').createServer(options, app);

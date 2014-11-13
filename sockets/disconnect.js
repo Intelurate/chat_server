@@ -1,10 +1,11 @@
 
 //var Worker = require('webworker-threads').Worker;
 
-module.exports.set = function(socket, io, rooms) {	
+module.exports.set = function(socket, io, redis_client) {	
 	// when the user disconnects.. perform this
 	socket.on('disconnect', function() {	
 	
+		console.log('disconnected Yo');
 
 		/*
 		var worker = new Worker(function() {
@@ -20,7 +21,6 @@ module.exports.set = function(socket, io, rooms) {
 			console.log(event.data);
 		};
 		*/
-
 
 		/*
 		if(rooms) {
