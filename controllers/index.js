@@ -1,4 +1,4 @@
-//var files = require('./files');
+var rest = require('./rest');
 
 module.exports.set = function(app, fs, oppressor) {
 
@@ -8,4 +8,8 @@ module.exports.set = function(app, fs, oppressor) {
 	// });
 		
 	//files.set(app, fs, oppressor);
+
+	rest.set(app, fs, oppressor);
+
+
 }

@@ -22,17 +22,9 @@ module.exports.set = function(socket, io, db, sanitizer) {
         	var created = d.getTime();	    
        			//data.message = sanitizer.escape(data.message);
 
-       			console.log(data.message)
-
             collection.insert({ "token" : data.user.token, "username" : data.user.username, "avatar" : data.user.avatar, "chat" : data.message, "created" : created }, 
             	{safe:true}, function(err, result) {
-            	
             	data.result = result[0];     	
-
-            	console.log('chat sent');
-
-            	console.log(data)
-
             	io.in(roomKey).emit('updatechat', { data : data });
 
             });

@@ -68,7 +68,7 @@ db.open(function(err, db) {
     }
 });
 
-server.listen(8889);
+server.listen(8887);
 
 //server.listen(80);
 //serverSSL.listen(443);

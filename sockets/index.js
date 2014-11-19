@@ -1,5 +1,6 @@
 var redis = require("redis");
 var redis_client = redis.createClient(6379, '127.0.0.1', {});
+
 var startConnection = require('./startConnection');
 var endConnection = require('./endConnection');
 var getUserList = require('./getUserList');
@@ -13,19 +14,17 @@ module.exports.set = function(io, db, sanitizer) {
 
 	io.on('connection', function (socket) {
 
-		console.log(socket);
-
 		startConnection.set(socket, io, db, redis_client);		
 		sendChat.set(socket, io, db, sanitizer);	
 		getPage.set(socket, io, db, redis_client);
 
-
 		/*
 		leaveRoom.set(socket, io, redis_client);				
-		getUserList.set(socket, io, redis_client);		
+		getUserList.set(socket, io, redis_client);	
+		*/	
+		
+		
 		getUserConnections.set(socket, io, redis_client);
-		*/
-			
 		disconnect.set(socket, io, redis_client);
 		endConnection.set(socket, io, db, redis_client);
 

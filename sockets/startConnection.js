@@ -3,94 +3,125 @@ module.exports.set = function(socket, io, db, redis_client) {
 
 	socket.on('startconnection', function(data) {
 
-		console.log(data);
-
 		var roomKey = data.room;
 
 		redis_client.hgetall(roomKey+":users", function(err, users) {
 
-			//sets the users room token
-			if(!users || !users[data.user.token]) {
+			var userSet = {};
+			userSet[data.user.token] = data.user.username;
 
-				var userSet = {};
+			console.log("user set");
+			console.log(userSet);
+			redis_client.hmset(roomKey+":users", userSet);
 
-				userSet[data.user.token] = data.user.username;
+			socket.join(roomKey);
+			socket.user_token = data.user.token;
+			socket.room_key = roomKey;
 
-				redis_client.hmset(roomKey+":users", userSet);
+		    db.collection(roomKey, function(err, collection) {
+		        collection.find().sort( { "created" : -1 } ).limit(20).toArray(function(err, items) {
 
-				//redis_client.incr(roomKey+":users:count");
+		        	data.items = items;
 
-				// redis_client.get(roomKey+":users:count", function(err, user_count) {
-				// 	data.count = user_count;
+					redis_client.hgetall(roomKey+":users", function(err, users) {
+					
+						data.users = users;						
 
-// { data: 
-//    { room: '037acf77482d425aa93d0c77f0a89412',
-//      user: 
-//       { avatar: 'animals/cat_avatar_0083.jpg',
-//         token: '2f680cd31dc75cef1fd4e74de97e0c23',
-//         username: 'Ed' } } }
+						//socket.broadcast.to(roomKey).emit('userentersroom', data);						
+    					// io.sockets.in(roomKey).emit('showuserlist', data);
+			      //      	io.to(roomKey).emit('verifyconnection', data );
 
 
-					socket.join(roomKey);
-				    db.collection(roomKey, function(err, collection) {
-				        collection.find().sort( { "created" : -1 } ).limit(20).toArray(function(err, items) {
+					    socket.broadcast.to(roomKey).emit('userentersroom', data);			
+						
+						//io.to(roomKey).emit('showuserlist', data);
+						io.sockets.in(roomKey).emit('showuserlist', data);				
+					    
+					    socket.emit('verifyconnection', data );	
 
-				        	data.items = items;
 
-							redis_client.hgetall(roomKey+":users", function(err, users) {
-							
-								data.users = users;						
-								socket.broadcast.to(roomKey).emit('userentersroom', data);						
-		    					io.sockets.in(roomKey).emit('showuserlist', data);
-					           	io.to(data.room).emit('verifyconnection', data );
+           			});
+		        })
+		    });	
 
-		           			});
 
-				        })
-				    });	
 
-				//});
+			// console.log("USERS:");
+			// console.log(users);
+
+			// //sets the users room token
+			// if(!users) {
+
+			// 	var userSet = {};
+			// 	userSet[data.user.token] = data.user.username;
+
+			// 	console.log("user set");
+			// 	console.log(userSet);
+			// 	redis_client.hmset(roomKey+":users", userSet);
+
+			// 	socket.join(roomKey);
+			// 	socket.user_token = data.user.token;
+			// 	socket.room_key = roomKey;
+
+			//     db.collection(roomKey, function(err, collection) {
+			//         collection.find().sort( { "created" : -1 } ).limit(20).toArray(function(err, items) {
+
+			//         	data.items = items;
+
+			// 			redis_client.hgetall(roomKey+":users", function(err, users) {
+						
+			// 				data.users = users;						
+
+			// 				//socket.broadcast.to(roomKey).emit('userentersroom', data);						
+	  //   					io.sockets.in(roomKey).emit('showuserlist', data);
+			// 	           	io.to(roomKey).emit('verifyconnection', data );
+
+	  //          			});
+			//         })
+			//     });	
 			
-			}else{
-
-				redis_client.get(roomKey+":users:count", function(err, user_count) {
-					
-					if(!user_count){
-						redis_client.incr(roomKey+":users:count");
-						data.count = 1;
-					}else{
-						data.count = user_count;
-					}
-					
-	
-					//needs to be fixed
-					socket.join(roomKey);
-
-				    db.collection(roomKey, function(err, collection) {
-
-				        collection.find().sort( { "created" : -1 } ).limit(20).toArray(function(err, items) {
-				        	
-				        	data.items = items;	
+			// }else{
 
 
-		           			//io.to(roomKey).emit('verifyconnection', { data : data } );		           					       
-		           			//socket.broadcast.to(roomKey).emit('verifyconnection', { data : data } );
+			// 	socket.join(roomKey);
+			// 	socket.user_token = data.user.token;
+			// 	socket.room_key = roomKey;
 
-							redis_client.hgetall(roomKey+":users", function(err, users) {								
-								data.users = users;							    
-							    
-							    io.to(roomKey).emit('showuserlist', data);		
-							    
-							    console.log('sho wuser lsit');
+			// 	var userSet = {};
+			// 	userSet[data.user.token] = data.user.username;
+			// 	console.log("user set 2");
+			// 	console.log(userSet);
+			// 	redis_client.hmset(roomKey+":users", userSet);
 
-		    					//io.sockets.in(roomKey).emit('showuserlist', data);
+			//     db.collection(roomKey, function(err, collection) {
 
-							    io.to(roomKey).emit('verifyconnection', data );	
-							});				     
-				        })
-				    });												
-				});
-			}
+			//         collection.find().sort( { "created" : -1 } ).limit(20).toArray(function(err, items) {
+			        	
+			//         	data.items = items;	
+
+			// 			redis_client.hgetall(roomKey+":users", function(err, users) {								
+
+			// 				data.users = users;							    
+
+			// 				console.log('send message user entered room');
+			// 				console.log(roomKey);
+
+			// 			    socket.broadcast.to(roomKey).emit('userentersroom', data);			
+		
+			// 				//io.to(roomKey).emit('showuserlist', data);
+
+			// 				io.sockets.in(roomKey).emit('showuserlist', data);				
+
+			// 			    io.to(roomKey).emit('verifyconnection', data );	
+			// 			});				     
+			//         })
+			//     });	
+
+			// }
+
+
+
+
 		});
 	});
 }

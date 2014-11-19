@@ -5,7 +5,33 @@ module.exports.set = function(socket, io, redis_client) {
 	// when the user disconnects.. perform this
 	socket.on('disconnect', function() {	
 	
-		console.log('disconnected Yo');
+		var roomKey = socket.room_key;
+
+		redis_client.hgetall(roomKey+":users", function(err, users) {
+
+			if(users) {
+				var data = {};
+				if(users[socket.user_token]) {
+					console.log(socket.user_token);
+					data.left_user = users[socket.user_token];
+					redis_client.hdel(roomKey+":users", socket.user_token);
+					delete users[socket.user_token];
+				}
+				
+				if(Object.keys(users).length !== 0) {
+					//redis_client.hmset(roomKey+":users", users);								
+					data.users = users;
+					console.log("USER LEFT ROOM");
+					console.log(roomKey);
+
+					socket.broadcast.to(roomKey).emit('showuserlist', data);	
+					socket.broadcast.to(roomKey).emit('userleftroom', data );
+				}
+
+				socket.leave(roomKey);
+			}
+	    });	
+
 
 		/*
 		var worker = new Worker(function() {

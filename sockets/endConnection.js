@@ -9,7 +9,6 @@ module.exports.set = function(socket, io, db, redis_client) {
 //      token: '2f680cd31dc75cef1fd4e74de97e0c23',
 //      username: 'Ed' } }
 
-
 		console.log(data)
 
 		var roomKey = data.room;
@@ -25,7 +24,8 @@ module.exports.set = function(socket, io, db, redis_client) {
 				socket.leave(roomKey);
 
 				redis_client.hgetall(roomKey+":users", function(err, users) {								
-					data.users = users;							    				
+					data.users = users;							 
+					console.log('discccocncncetet')   				
 					socket.broadcast.to(roomKey).emit('userdisconnected', data);	
 					socket.leave(roomKey);
 				});
